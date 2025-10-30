@@ -1,0 +1,47 @@
+# Development override for docker-compose.yml
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+version: '3.8'
+
+services:
+  api:
+    # Use volume mounts for live code reloading
+    volumes:
+      - .:/app
+      - /app/__pycache__
+      - /app/cee_pipeline/__pycache__
+
+    # Override command for auto-reload
+    command: uvicorn cee_pipeline.api.main:app --host 0.0.0.0 --port 8000 --reload
+
+    # Additional environment for development
+    environment:
+      LOG_LEVEL: DEBUG
+      PYTHONDONTWRITEBYTECODE: 1
+
+    # Expose debugger port
+    ports:
+      - "8000:8000"
+      - "5678:5678"  # For debugpy
+
+  # Use SQLite for faster development (optional)
+  # Uncomment to use SQLite instead of PostgreSQL in dev
+  # api:
+  #   environment:
+  #     DATABASE_URL: sqlite:///./data/cee_pipeline_dev.db
+
+  postgres:
+    # Expose PostgreSQL port for local access
+    ports:
+      - "5432:5432"
+
+  redis:
+    # Expose Redis port for local access
+    ports:
+      - "6379:6379"
+
+  nginx:
+    # Mount nginx config for live updates
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./cee_pipeline/dashboard:/usr/share/nginx/html/dashboard:ro

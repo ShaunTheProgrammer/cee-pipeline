@@ -1,0 +1,12 @@
+# Custom PostgreSQL Dockerfile with initialization
+FROM postgres:15-alpine
+
+# Copy initialization scripts (if needed in future)
+# COPY ./db-init/*.sql /docker-entrypoint-initdb.d/
+
+# Set default environment variables
+ENV POSTGRES_DB=cee_pipeline \
+    POSTGRES_USER=cee_user
+
+# Expose PostgreSQL port
+EXPOSE 5432

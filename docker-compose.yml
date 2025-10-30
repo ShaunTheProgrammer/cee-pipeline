@@ -1,0 +1,113 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: cee-postgres
+    environment:
+      POSTGRES_DB: cee_pipeline
+      POSTGRES_USER: cee_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cee_password_change_me}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cee_user -d cee_pipeline"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cee-network
+
+  # Redis (for Celery task queue - future use)
+  redis:
+    image: redis:7-alpine
+    container_name: cee-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cee-network
+
+  # CEE Pipeline API
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cee-api
+    environment:
+      # Database
+      DATABASE_URL: postgresql://cee_user:${POSTGRES_PASSWORD:-cee_password_change_me}@postgres:5432/cee_pipeline
+
+      # Redis
+      REDIS_URL: redis://redis:6379/0
+
+      # LLM API Keys (from .env file)
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+
+      # Trust Score Weights
+      TIER_1_WEIGHT: ${TIER_1_WEIGHT:-0.25}
+      TIER_2_WEIGHT: ${TIER_2_WEIGHT:-0.55}
+      TIER_3_WEIGHT: ${TIER_3_WEIGHT:-0.20}
+
+      # Drift Monitoring
+      DRIFT_THRESHOLD_ABSOLUTE: ${DRIFT_THRESHOLD_ABSOLUTE:-5.0}
+      DRIFT_THRESHOLD_RELATIVE: ${DRIFT_THRESHOLD_RELATIVE:-0.10}
+
+      # Tier 3 Settings
+      TIER_3_SAMPLING_RATE: ${TIER_3_SAMPLING_RATE:-0.20}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - cee-network
+    restart: unless-stopped
+
+  # Nginx (reverse proxy + dashboard hosting)
+  nginx:
+    image: nginx:alpine
+    container_name: cee-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./cee_pipeline/dashboard:/usr/share/nginx/html/dashboard:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - api
+    networks:
+      - cee-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  cee-network:
+    driver: bridge

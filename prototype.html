@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contextual Evaluation Engine (CEE) - AI Model Evaluation Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .nav-tabs {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 0 20px;
+            display: flex;
+            gap: 0;
+        }
+
+        .nav-tab {
+            padding: 16px 24px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: #64748b;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-tab:hover {
+            color: #475569;
+            background-color: #f8fafc;
+        }
+
+        .nav-tab.active {
+            color: #6366f1;
+            border-bottom-color: #6366f1;
+            background-color: #fefefe;
+        }
+
+        .content {
+            padding: 24px 0;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .card h3 {
+            color: #1e293b;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .trust-score {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .trust-score-value {
+            font-size: 4rem;
+            font-weight: 700;
+            color: #059669;
+            margin-bottom: 8px;
+        }
+
+        .trust-score-label {
+            font-size: 1.1rem;
+            color: #6b7280;
+            margin-bottom: 16px;
+        }
+
+        .trust-score-breakdown {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .tier-score {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .tier-score-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .tier-score-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-green { background-color: #10b981; }
+        .status-yellow { background-color: #f59e0b; }
+        .status-red { background-color: #ef4444; }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .kpi-item {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            border-radius: 8px;
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .kpi-label {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .evaluation-form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 500;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: #6366f1;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #5855eb;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: #475569;
+        }
+
+        .btn-secondary:hover {
+            background-color: #cbd5e1;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .evaluation-results {
+            display: none;
+            margin-top: 32px;
+            padding: 24px;
+            background-color: #f0f9ff;
+            border-radius: 12px;
+            border: 1px solid #bae6fd;
+        }
+
+        .dimension-scores {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .dimension-item {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .dimension-score {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .dimension-name {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .monitoring-chart {
+            height: 300px;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-line {
+            position: absolute;
+            bottom: 40px;
+            left: 40px;
+            right: 40px;
+            height: 200px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%);
+            border-radius: 4px;
+        }
+
+        .drift-alert {
+            background-color: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .drift-alert h4 {
+            color: #92400e;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .drift-alert p {
+            color: #b45309;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f4f6;
+            border-radius: 50%;
+            border-top-color: #6366f1;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .alert-success {
+            background-color: #d1fae5;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+        }
+
+        .alert-warning {
+            background-color: #fef3c7;
+            border: 1px solid #fde68a;
+            color: #92400e;
+        }
+
+        .tier-info {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .tier-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .tier-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 4px solid #6366f1;
+        }
+
+        .tier-title {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .tier-description {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+
+        .tier-method {
+            font-size: 0.875rem;
+            color: #475569;
+            background-color: #f8fafc;
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>Contextual Evaluation Engine (CEE)</h1>
+            <p>AI Model Evaluation Platform - Transforming raw metrics into continuous, business-aligned intelligence</p>
+        </div>
+    </header>
+
+    <nav class="nav-tabs">
+        <button class="nav-tab active" onclick="showTab('dashboard')">Dashboard</button>
+        <button class="nav-tab" onclick="showTab('evaluate')">Run Evaluation</button>
+        <button class="nav-tab" onclick="showTab('monitoring')">Drift Monitoring</button>
+        <button class="nav-tab" onclick="showTab('architecture')">System Architecture</button>
+    </nav>
+
+    <main class="content">
+        <div class="container">
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content active">
+                <div class="dashboard-grid">
+                    <div class="card trust-score">
+                        <h3>Overall Trust Score</h3>
+                        <div class="trust-score-value" id="trustScoreValue">87</div>
+                        <div class="trust-score-label">High Confidence</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 87%"></div>
+                        </div>
+                        <div class="trust-score-breakdown">
+                            <div class="tier-score">
+                                <div class="tier-score-value">92</div>
+                                <div class="tier-score-label">Tier 1</div>
+                            </div>
+                            <div class="tier-score">
+                                <div class="tier-score-value">85</div>
+                                <div class="tier-score-label">Tier 2</div>
+                            </div>
+                            <div class="tier-score">
+                                <div class="tier-score-value">88</div>
+                                <div class="tier-score-label">Tier 3</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>System Status</h3>
+                        <div style="margin-bottom: 16px;">
+                            <span class="status-indicator status-green"></span>
+                            <strong>All Systems Operational</strong>
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <span class="status-indicator status-green"></span>
+                            Tier 1: Automated Checks
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <span class="status-indicator status-green"></span>
+                            Tier 2: LLM-as-a-Judge
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <span class="status-indicator status-yellow"></span>
+                            Tier 3: Human Review (2 pending)
+                        </div>
+                        <div>
+                            <span class="status-indicator status-green"></span>
+                            Monitoring Dashboard
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Recent Activity</h3>
+                        <div style="margin-bottom: 12px; padding: 12px; background-color: #f8fafc; border-radius: 6px;">
+                            <strong>Model v2.3.1 Evaluated</strong><br>
+                            <small style="color: #64748b;">Trust Score: 89 • 5 minutes ago</small>
+                        </div>
+                        <div style="margin-bottom: 12px; padding: 12px; background-color: #f8fafc; border-radius: 6px;">
+                            <strong>Drift Alert Resolved</strong><br>
+                            <small style="color: #64748b;">Safety dimension • 15 minutes ago</small>
+                        </div>
+                        <div style="padding: 12px; background-color: #f8fafc; border-radius: 6px;">
+                            <strong>Batch Evaluation Complete</strong><br>
+                            <small style="color: #64748b;">1,247 samples processed • 1 hour ago</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Key Performance Indicators</h3>
+                    <div class="kpi-grid">
+                        <div class="kpi-item">
+                            <div class="kpi-value">60%</div>
+                            <div class="kpi-label">Evaluation Cost Reduction</div>
+                        </div>
+                        <div class="kpi-item">
+                            <div class="kpi-value">50%</div>
+                            <div class="kpi-label">Faster Release Cycles</div>
+                        </div>
+                        <div class="kpi-item">
+                            <div class="kpi-value">95%</div>
+                            <div class="kpi-label">Trust Score Stability</div>
+                        </div>
+                        <div class="kpi-item">
+                            <div class="kpi-value">40%</div>
+                            <div class="kpi-label">HITL Cost Reduction</div>
+                        </div>
+                        <div class="kpi-item">
+                            <div class="kpi-value">99.9%</div>
+                            <div class="kpi-label">System Uptime</div>
+                        </div>
+                        <div class="kpi-item">
+                            <div class="kpi-value">&lt;100ms</div>
+                            <div class="kpi-label">Tier 1 Latency</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evaluate Tab -->
+            <div id="evaluate" class="tab-content">
+                <div class="card">
+                    <h3>Run Model Evaluation</h3>
+                    <form class="evaluation-form" id="evaluationForm">
+                        <div class="form-group">
+                            <label class="form-label" for="modelInput">Model Input Text</label>
+                            <textarea 
+                                class="form-textarea" 
+                                id="modelInput" 
+                                placeholder="Enter the input text you want to evaluate..."
+                                required>Tell me about the benefits of renewable energy sources.</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="modelOutput">Model Output</label>
+                            <textarea 
+                                class="form-textarea" 
+                                id="modelOutput" 
+                                placeholder="Enter the model's output response..."
+                                required>Renewable energy sources like solar, wind, and hydro power offer numerous benefits including environmental sustainability, reduced carbon emissions, long-term cost savings, energy independence, and job creation in green technology sectors. These sources are inexhaustible and help combat climate change while providing clean electricity.</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="evaluationTier">Evaluation Tier</label>
+                            <select class="form-select" id="evaluationTier">
+                                <option value="tier1">Tier 1: Automated Sanity Checks</option>
+                                <option value="tier2" selected>Tier 2: LLM-as-a-Judge</option>
+                                <option value="tier3">Tier 3: Human-in-the-Loop</option>
+                                <option value="all">All Tiers (Comprehensive)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="useCase">Use Case Context</label>
+                            <select class="form-select" id="useCase">
+                                <option value="customer-support">Customer Support</option>
+                                <option value="content-generation">Content Generation</option>
+                                <option value="code-assistance">Code Assistance</option>
+                                <option value="educational">Educational Content</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">
+                            <span id="evaluateButtonText">Start Evaluation</span>
+                            <span id="evaluateButtonLoader" class="loading hidden" style="margin-left: 8px;"></span>
+                        </button>
+                    </form>
+
+                    <div id="evaluationResults" class="evaluation-results">
+                        <h4 style="color: #1e293b; margin-bottom: 16px;">Evaluation Results</h4>
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <div style="font-size: 2.5rem; font-weight: 700; color: #059669;" id="resultTrustScore">92</div>
+                            <div style="color: #6b7280; margin-bottom: 16px;">Overall Trust Score</div>
+                        </div>
+                        
+                        <div class="dimension-scores" id="dimensionScores">
+                            <div class="dimension-item">
+                                <div class="dimension-score">5</div>
+                                <div class="dimension-name">Factual Accuracy</div>
+                            </div>
+                            <div class="dimension-item">
+                                <div class="dimension-score">4</div>
+                                <div class="dimension-name">Safety & Policy</div>
+                            </div>
+                            <div class="dimension-item">
+                                <div class="dimension-score">5</div>
+                                <div class="dimension-name">Alignment</div>
+                            </div>
+                            <div class="dimension-item">
+                                <div class="dimension-score">4</div>
+                                <div class="dimension-name">Tone & Style</div>
+                            </div>
+                            <div class="dimension-item">
+                                <div class="dimension-score">5</div>
+                                <div class="dimension-name">Conciseness</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 20px; padding: 16px; background-color: white; border-radius: 8px;">
+                            <h5 style="color: #1e293b; margin-bottom: 8px;">Detailed Analysis</h5>
+                            <p style="color: #475569; margin-bottom: 8px;"><strong>Strengths:</strong> Comprehensive coverage of renewable energy benefits, factually accurate information, appropriate tone for educational content.</p>
+                            <p style="color: #475569;"><strong>Areas for Improvement:</strong> Could include specific statistics or examples to enhance credibility.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monitoring Tab -->
+            <div id="monitoring" class="tab-content">
+                <div class="drift-alert">
+                    <h4>Drift Alert: Minor Deviation Detected</h4>
+                    <p>Safety dimension scores have decreased by 8% over the past 24 hours. Monitoring continues...</p>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3>Trust Score Trend</h3>
+                        <div class="monitoring-chart">
+                            <div class="chart-line"></div>
+                            <div style="position: absolute; bottom: 10px; left: 40px; right: 40px; display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b;">
+                                <span>24h ago</span>
+                                <span>12h ago</span>
+                                <span>6h ago</span>
+                                <span>Now</span>
+                            </div>
+                            <div style="position: absolute; left: 10px; top: 20px; bottom: 60px; display: flex; flex-direction: column; justify-content: space-between; font-size: 0.75rem; color: #64748b;">
+                                <span>100</span>
+                                <span>75</span>
+                                <span>50</span>
+                                <span>25</span>
+                                <span>0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Drift Stability Index (DSI)</h3>
+                        <div style="text-align: center; padding: 20px;">
+                            <div style="font-size: 3rem; font-weight: 700; color: #f59e0b; margin-bottom: 8px;">0.12</div>
+                            <div style="color: #6b7280; margin-bottom: 16px;">Warning Threshold</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 12%; background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);"></div>
+                            </div>
+                            <p style="color: #92400e; font-size: 0.9rem; margin-top: 12px;">Approaching alert threshold (0.15)</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Evaluation Volume</h3>
+                        <div style="text-align: center; padding: 20px;">
+                            <div style="font-size: 2.5rem; font-weight: 700; color: #1e293b; margin-bottom: 8px;">1,247</div>
+                            <div style="color: #6b7280; margin-bottom: 8px;">Evaluations Today</div>
+                            <div style="color: #059669; font-size: 0.9rem;">↑ 23% from yesterday</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Dimension Performance Over Time</h3>
+                    <div class="dimension-scores">
+                        <div class="dimension-item">
+                            <div class="dimension-score" style="color: #059669;">4.2</div>
+                            <div class="dimension-name">Factual Accuracy</div>
+                            <div style="font-size: 0.75rem; color: #10b981;">↑ 2%</div>
+                        </div>
+                        <div class="dimension-item">
+                            <div class="dimension-score" style="color: #f59e0b;">3.6</div>
+                            <div class="dimension-name">Safety & Policy</div>
+                            <div style="font-size: 0.75rem; color: #f59e0b;">↓ 8%</div>
+                        </div>
+                        <div class="dimension-item">
+                            <div class="dimension-score" style="color: #059669;">4.5</div>
+                            <div class="dimension-name">Alignment</div>
+                            <div style="font-size: 0.75rem; color: #10b981;">↑ 1%</div>
+                        </div>
+                        <div class="dimension-item">
+                            <div class="dimension-score" style="color: #059669;">4.1</div>
+                            <div class="dimension-name">Tone & Style</div>
+                            <div style="font-size: 0.75rem; color: #10b981;">↑ 3%</div>
+                        </div>
+                        <div class="dimension-item">
+                            <div class="dimension-score" style="color: #059669;">4.3</div>
+                            <div class="dimension-name">Conciseness</div>
+                            <div style="font-size: 0.75rem; color: #10b981;">→ 0%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Architecture Tab -->
+            <div id="architecture" class="tab-content">
+                <div class="tier-info">
+                    <h3 style="text-align: center; margin-bottom: 24px; color: #1e293b;">Three-Tier Evaluation Architecture</h3>
+                    <div class="tier-grid">
+                        <div class="tier-card">
+                            <div class="tier-title">Tier 1: Automated Sanity Checks</div>
+                            <div class="tier-description">Continuous, low-latency validation using rule-based checks and reference metrics.</div>
+                            <div class="tier-method">
+                                <strong>Methods:</strong> PII detection, profanity filtering, token limits, ROUGE, BLEU, perplexity
+                            </div>
+                            <div style="margin-top: 12px; color: #059669; font-weight: 500;">
+                                ⚡ &lt;100ms latency
+                            </div>
+                        </div>
+
+                        <div class="tier-card">
+                            <div class="tier-title">Tier 2: LLM-as-a-Judge System</div>
+                            <div class="tier-description">Scheduled, scalable evaluation across five customized dimensions using fine-tuned LLM.</div>
+                            <div class="tier-method">
+                                <strong>Dimensions:</strong> Factual Accuracy, Safety & Policy, Alignment, Tone & Style, Conciseness
+                            </div>
+                            <div style="margin-top: 12px; color: #059669; font-weight: 500;">
+                                🎯 1000+ evaluations/hour
+                            </div>
+                        </div>
+
+                        <div class="tier-card">
+                            <div class="tier-title">Tier 3: Human-in-the-Loop</div>
+                            <div class="tier-description">On-demand, targeted human review for ambiguous or critical edge cases (20% of outputs).</div>
+                            <div class="tier-method">
+                                <strong>Features:</strong> Annotation UI, case routing system, feedback loop for LAJ improvement
+                            </div>
+                            <div style="margin-top: 12px; color: #059669; font-weight: 500;">
+                                🎖️ Maximum ROI focus
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Trust Score Calculation</h3>
+                    <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                        <div style="font-family: 'Courier New', monospace; color: #1e293b; font-size: 1.1rem; text-align: center;">
+                            Trust Score = 0.25 × Tier 1 + 0.55 × Tier 2 + 0.20 × Tier 3
+                        </div>
+                    </div>
+                    <p style="color: #475569;">
+                        The Trust Score is a weighted aggregate metric (0-100) that summarizes evaluation results into a single score, 
+                        prioritizing Tier 2 LLM-as-a-Judge judgments while integrating quantitative and human-reviewed data for 
+                        comprehensive model assessment.
+                    </p>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3>Integration Requirements</h3>
+                        <ul style="color: #475569; line-height: 1.8;">
+                            <li>✅ API integration with MLOps pipelines</li>
+                            <li>✅ Webhook support for CI/CD automation</li>
+                            <li>✅ SSO/SAML authentication</li>
+                            <li>✅ Export capabilities (CSV, JSON)</li>
+                            <li>✅ Real-time monitoring dashboard</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3>Performance Metrics</h3>
+                        <div style="color: #475569; line-height: 1.8;">
+                            <div><strong>Tier 1:</strong> &lt;100ms per evaluation</div>
+                            <div><strong>Tier 2:</strong> 1000+ evaluations/hour</div>
+                            <div><strong>Dashboard:</strong> &lt;5 second refresh</div>
+                            <div><strong>Uptime:</strong> 99.9% availability</div>
+                            <div><strong>Throughput:</strong> Enterprise-scale ready</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked nav tab
+            event.target.classList.add('active');
+        }
+
+        // Handle evaluation form submission
+        document.getElementById('evaluationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const buttonText = document.getElementById('evaluateButtonText');
+            const buttonLoader = document.getElementById('evaluateButtonLoader');
+            const resultsDiv = document.getElementById('evaluationResults');
+            
+            // Show loading state
+            buttonText.textContent = 'Evaluating...';
+            buttonLoader.classList.remove('hidden');
+            resultsDiv.style.display = 'none';
+            
+            // Simulate evaluation process
+            setTimeout(() => {
+                // Generate random but realistic scores
+                const dimensions = [
+                    { name: 'Factual Accuracy', score: Math.floor(Math.random() * 2) + 4 },
+                    { name: 'Safety & Policy', score: Math.floor(Math.random() * 2) + 4 },
+                    { name: 'Alignment', score: Math.floor(Math.random() * 2) + 4 },
+                    { name: 'Tone & Style', score: Math.floor(Math.random() * 2) + 4 },
+                    { name: 'Conciseness', score: Math.floor(Math.random() * 2) + 4 }
+                ];
+                
+                // Calculate trust score (weighted average converted to 0-100 scale)
+                const avgScore = dimensions.reduce((sum, dim) => sum + dim.score, 0) / dimensions.length;
+                const trustScore = Math.floor((avgScore / 5) * 100);
+                
+                // Update results
+                document.getElementById('resultTrustScore').textContent = trustScore;
+                
+                const scoresContainer = document.getElementById('dimensionScores');
+                scoresContainer.innerHTML = dimensions.map(dim => `
+                    <div class="dimension-item">
+                        <div class="dimension-score">${dim.score}</div>
+                        <div class="dimension-name">${dim.name}</div>
+                    </div>
+                `).join('');
+                
+                // Reset button and show results
+                buttonText.textContent = 'Start Evaluation';
+                buttonLoader.classList.add('hidden');
+                resultsDiv.style.display = 'block';
+                
+                // Update dashboard trust score
+                document.getElementById('trustScoreValue').textContent = trustScore;
+                document.querySelector('.progress-fill').style.width = trustScore + '%';
+                
+            }, 3000); // 3 second simulation
+        });
+
+        // Simulate real-time updates
+        setInterval(() => {
+            const trustScore = document.getElementById('trustScoreValue');
+            const currentScore = parseInt(trustScore.textContent);
+            const variation = Math.floor(Math.random() * 6) - 3; // -3 to +3
+            const newScore = Math.max(70, Math.min(100, currentScore + variation));
+            
+            if (newScore !== currentScore) {
+                trustScore.textContent = newScore;
+                document.querySelector('.progress-fill').style.width = newScore + '%';
+                
+                // Update trust score label
+                const label = document.querySelector('.trust-score-label');
+                if (newScore >= 90) {
+                    label.textContent = 'Excellent';
+                    trustScore.style.color = '#059669';
+                } else if (newScore >= 80) {
+                    label.textContent = 'High Confidence';
+                    trustScore.style.color = '#059669';
+                } else if (newScore >= 70) {
+                    label.textContent = 'Medium Confidence';
+                    trustScore.style.color = '#f59e0b';
+                } else {
+                    label.textContent = 'Low Confidence';
+                    trustScore.style.color = '#ef4444';
+                }
+            }
+        }, 5000);
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add some initial animations
+            setTimeout(() => {
+                document.querySelectorAll('.card').forEach((card, index) => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    card.style.transition = 'all 0.5s ease';
+                    
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, index * 100);
+                });
+            }, 100);
+        });
+    </script>
+</body>
+</html>
