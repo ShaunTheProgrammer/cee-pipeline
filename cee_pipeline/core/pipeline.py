@@ -84,7 +84,7 @@ class CEEPipeline:
             model_name=request.model_name,
             model_provider=request.model_provider.value,
             dataset_name=request.dataset_name,
-            metadata=request.metadata,
+            extra_metadata=request.metadata,
             status=EvaluationStatus.IN_PROGRESS,
             created_at=datetime.utcnow(),
             updated_at=datetime.utcnow()

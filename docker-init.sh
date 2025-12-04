@@ -7,39 +7,39 @@ echo "🚀 Initializing CEE Pipeline..."
 
 # Wait for PostgreSQL to be ready
 echo "⏳ Waiting for PostgreSQL..."
-until python -c "
+python << 'PYSCRIPT'
 import psycopg2
 import os
 import time
 import sys
 
 max_tries = 30
-tries = 0
-
-while tries < max_tries:
+for attempt in range(1, max_tries + 1):
     try:
         conn = psycopg2.connect(
             dbname=os.getenv('POSTGRES_DB', 'cee_pipeline'),
             user=os.getenv('POSTGRES_USER', 'cee_user'),
             password=os.getenv('POSTGRES_PASSWORD', 'cee_password_change_me'),
-            host='postgres'
+            host='postgres',
+            connect_timeout=5
         )
         conn.close()
-        print('PostgreSQL is ready!')
+        print('✓ PostgreSQL is ready!')
         sys.exit(0)
-    except:
-        tries += 1
-        print(f'PostgreSQL not ready, attempt {tries}/{max_tries}')
-        time.sleep(2)
+    except Exception as e:
+        if attempt < max_tries:
+            print(f'PostgreSQL not ready (attempt {attempt}/{max_tries}), waiting...')
+            time.sleep(2)
+        else:
+            print(f'ERROR: Failed to connect to PostgreSQL after {max_tries} attempts')
+            print(f'Last error: {e}')
+            sys.exit(1)
+PYSCRIPT
 
-print('PostgreSQL connection failed after all retries')
-sys.exit(1)
-" 2>/dev/null; do
-  echo "PostgreSQL is unavailable - sleeping"
-  sleep 2
-done
-
-echo "✓ PostgreSQL is ready!"
+if [ $? -ne 0 ]; then
+    echo "❌ Failed to connect to PostgreSQL"
+    exit 1
+fi
 
 # Initialize database tables
 echo "📊 Creating database tables..."

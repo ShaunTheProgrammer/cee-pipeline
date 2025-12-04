@@ -26,6 +26,9 @@
             border-radius: 10px;
             margin-bottom: 30px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .header h1 {
@@ -214,8 +217,14 @@
 </head>
 <body>
     <div class="header">
-        <h1>CEE Dashboard</h1>
-        <p>Contextual Evaluation Engine - Real-time Monitoring & Analytics</p>
+        <div>
+            <h1>CEE Dashboard</h1>
+            <p>Contextual Evaluation Engine - Real-time Monitoring & Analytics</p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <a href="/dashboard/evaluate.html" style="padding: 10px 20px; background: white; color: #667eea; text-decoration: none; border-radius: 8px; font-weight: 600; border: 2px solid #667eea; transition: all 0.3s;">🎯 Run Evaluation</a>
+            <a href="/docs" style="padding: 10px 20px; background: white; color: #667eea; text-decoration: none; border-radius: 8px; font-weight: 600; border: 2px solid #667eea; transition: all 0.3s;">📚 API Docs</a>
+        </div>
     </div>
 
     <div class="controls">

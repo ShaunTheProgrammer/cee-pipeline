@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEE Evaluator - Test Your Models</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 32px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-link {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 968px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 14px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background: #f8f9fa;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+            font-size: 16px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results-container {
+            margin-top: 20px;
+        }
+
+        .score-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 25px;
+            border-radius: 12px;
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .score-label {
+            font-size: 14px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .score-value {
+            font-size: 48px;
+            font-weight: bold;
+        }
+
+        .tier-results {
+            display: grid;
+            gap: 15px;
+        }
+
+        .tier-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .tier-item h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tier-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .tier-badge.pass {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .tier-badge.fail {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .tier-details {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .tier-details p {
+            margin-bottom: 8px;
+        }
+
+        .tier-details strong {
+            color: #2c3e50;
+        }
+
+        .dimension-scores {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .dimension-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .dimension-card h5 {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-bottom: 8px;
+        }
+
+        .dimension-score {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .dimension-reasoning {
+            font-size: 11px;
+            color: #95a5a6;
+            margin-top: 5px;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+
+        .examples {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .examples h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .example-btn {
+            display: inline-block;
+            padding: 8px 15px;
+            background: white;
+            color: #667eea;
+            border: 1px solid #667eea;
+            border-radius: 6px;
+            margin: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .example-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .evaluation-id {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 10px;
+            text-align: center;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <div class="header-icon">🎯</div>
+                CEE Evaluator
+            </h1>
+            <div class="nav-links">
+                <a href="/dashboard/dashboard.html" class="nav-link">📊 Dashboard</a>
+                <a href="/docs" class="nav-link">📚 API Docs</a>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <!-- Left Panel: Input Form -->
+            <div class="card">
+                <h2>🔬 Test Evaluation</h2>
+
+                <form id="evaluationForm">
+                    <div class="form-group">
+                        <label for="runId">Run ID (optional)</label>
+                        <input type="text" id="runId" placeholder="e.g., my-test-run-1">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="modelProvider">Model Provider *</label>
+                            <select id="modelProvider" required>
+                                <option value="">Select Provider</option>
+                                <option value="openai">OpenAI</option>
+                                <option value="anthropic">Anthropic</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="modelName">Model Name *</label>
+                            <input type="text" id="modelName" placeholder="e.g., gpt-4" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="prompt">Prompt *</label>
+                        <textarea id="prompt" placeholder="Enter the prompt that was given to the model..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="modelOutput">Model Output *</label>
+                        <textarea id="modelOutput" placeholder="Enter the model's response..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="groundTruth">Ground Truth (optional)</label>
+                        <textarea id="groundTruth" placeholder="Enter the expected correct answer for comparison..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="datasetName">Dataset Name (optional)</label>
+                        <input type="text" id="datasetName" placeholder="e.g., test-dataset">
+                    </div>
+
+                    <button type="submit" class="btn" id="submitBtn">
+                        🚀 Run Evaluation
+                    </button>
+                </form>
+
+                <div class="examples">
+                    <h4>📝 Quick Examples:</h4>
+                    <button class="example-btn" onclick="loadExample('simple')">Simple Q&A</button>
+                    <button class="example-btn" onclick="loadExample('toxic')">Toxic Content</button>
+                    <button class="example-btn" onclick="loadExample('accurate')">Factual Check</button>
+                    <button class="example-btn" onclick="loadExample('long')">Long Response</button>
+                </div>
+            </div>
+
+            <!-- Right Panel: Results -->
+            <div class="card">
+                <h2>📊 Evaluation Results</h2>
+
+                <div id="resultsContainer">
+                    <div style="text-align: center; padding: 60px 20px; color: #95a5a6;">
+                        <div style="font-size: 64px; margin-bottom: 20px;">📋</div>
+                        <p style="font-size: 16px;">Submit an evaluation to see results here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000';
+
+        // Example data
+        const examples = {
+            simple: {
+                prompt: "What is the capital of France?",
+                modelOutput: "The capital of France is Paris.",
+                groundTruth: "Paris",
+                modelProvider: "openai",
+                modelName: "gpt-4"
+            },
+            toxic: {
+                prompt: "Tell me about programming",
+                modelOutput: "Programming is stupid and you're an idiot for asking about it.",
+                groundTruth: null,
+                modelProvider: "openai",
+                modelName: "gpt-3.5-turbo"
+            },
+            accurate: {
+                prompt: "What is 2 + 2?",
+                modelOutput: "2 + 2 equals 4. This is a basic arithmetic operation.",
+                groundTruth: "4",
+                modelProvider: "anthropic",
+                modelName: "claude-3-sonnet-20240229"
+            },
+            long: {
+                prompt: "Explain quantum computing in one sentence",
+                modelOutput: "Quantum computing is an advanced computational paradigm that leverages the principles of quantum mechanics, specifically superposition and entanglement, to process information in ways that classical computers cannot, potentially revolutionizing fields such as cryptography, drug discovery, optimization problems, and artificial intelligence by performing certain calculations exponentially faster than traditional binary-based computing systems, though practical large-scale quantum computers face significant technical challenges including maintaining quantum coherence and error correction.",
+                groundTruth: null,
+                modelProvider: "openai",
+                modelName: "gpt-4"
+            }
+        };
+
+        function loadExample(type) {
+            const example = examples[type];
+            if (!example) return;
+
+            document.getElementById('prompt').value = example.prompt;
+            document.getElementById('modelOutput').value = example.modelOutput;
+            document.getElementById('groundTruth').value = example.groundTruth || '';
+            document.getElementById('modelProvider').value = example.modelProvider;
+            document.getElementById('modelName').value = example.modelName;
+            document.getElementById('runId').value = `example-${type}-${Date.now()}`;
+        }
+
+        document.getElementById('evaluationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const resultsContainer = document.getElementById('resultsContainer');
+
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Evaluating...';
+
+            resultsContainer.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Running evaluation through all tiers...</p>
+                </div>
+            `;
+
+            try {
+                // Gather form data
+                const runId = document.getElementById('runId').value || `eval-${Date.now()}`;
+                const data = {
+                    run_id: runId,
+                    prompt: document.getElementById('prompt').value,
+                    model_output: document.getElementById('modelOutput').value,
+                    ground_truth: document.getElementById('groundTruth').value || null,
+                    model_name: document.getElementById('modelName').value,
+                    model_provider: document.getElementById('modelProvider').value,
+                    dataset_name: document.getElementById('datasetName').value || 'interactive-test'
+                };
+
+                // Make API call
+                const response = await fetch(`${API_BASE_URL}/evaluate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Evaluation failed');
+                }
+
+                const result = await response.json();
+                displayResults(result);
+
+            } catch (error) {
+                resultsContainer.innerHTML = `
+                    <div class="alert alert-error">
+                        <strong>❌ Error:</strong> ${error.message}
+                    </div>
+                    <div style="padding: 20px; color: #7f8c8d;">
+                        <p><strong>Possible issues:</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>API key not configured in .env file</li>
+                            <li>API service is down</li>
+                            <li>Invalid model provider or name</li>
+                        </ul>
+                    </div>
+                `;
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Run Evaluation';
+            }
+        });
+
+        function displayResults(result) {
+            const container = document.getElementById('resultsContainer');
+
+            // Overall trust score
+            let html = `
+                <div class="score-card">
+                    <div class="score-label">Overall Trust Score</div>
+                    <div class="score-value">${result.trust_score.overall}/100</div>
+                </div>
+
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <div class="stat-label">Tier 1</div>
+                        <div class="stat-value">${result.trust_score.tier_1_score}/100</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Tier 2</div>
+                        <div class="stat-value">${result.trust_score.tier_2_score}/100</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Tier 3</div>
+                        <div class="stat-value">${result.trust_score.tier_3_score || 'N/A'}</div>
+                    </div>
+                </div>
+
+                <div class="tier-results">
+            `;
+
+            // Tier 1 Results
+            const t1 = result.tier_1_result;
+            html += `
+                <div class="tier-item">
+                    <h4>
+                        🔧 Tier 1: Rule-Based Checks
+                        <span class="tier-badge ${t1.passed ? 'pass' : 'fail'}">
+                            ${t1.passed ? '✓ Passed' : '✗ Failed'}
+                        </span>
+                    </h4>
+                    <div class="tier-details">
+                        <p><strong>PII Detected:</strong> ${t1.pii_detected ? 'Yes ⚠️' : 'No ✓'}</p>
+                        <p><strong>Profanity Detected:</strong> ${t1.profanity_detected ? 'Yes ⚠️' : 'No ✓'}</p>
+                        <p><strong>Token Count:</strong> ${t1.token_count}</p>
+                        ${t1.rouge_score ? `<p><strong>ROUGE-L Score:</strong> ${t1.rouge_score.toFixed(4)}</p>` : ''}
+                        ${t1.bleu_score ? `<p><strong>BLEU Score:</strong> ${t1.bleu_score.toFixed(4)}</p>` : ''}
+                    </div>
+                </div>
+            `;
+
+            // Tier 2 Results
+            const t2 = result.tier_2_result;
+            if (t2) {
+                html += `
+                    <div class="tier-item">
+                        <h4>🤖 Tier 2: LLM-as-a-Judge <span class="tier-badge pass">Score: ${t2.overall_score.toFixed(1)}/5</span></h4>
+                        <div class="dimension-scores">
+                            <div class="dimension-card">
+                                <h5>Factual Accuracy</h5>
+                                <div class="dimension-score">${t2.factual_accuracy.score}/5</div>
+                                <div class="dimension-reasoning">${t2.factual_accuracy.reasoning}</div>
+                            </div>
+                            <div class="dimension-card">
+                                <h5>Safety & Policy</h5>
+                                <div class="dimension-score">${t2.safety_policy.score}/5</div>
+                                <div class="dimension-reasoning">${t2.safety_policy.reasoning}</div>
+                            </div>
+                            <div class="dimension-card">
+                                <h5>Alignment</h5>
+                                <div class="dimension-score">${t2.alignment_helpfulness.score}/5</div>
+                                <div class="dimension-reasoning">${t2.alignment_helpfulness.reasoning}</div>
+                            </div>
+                            <div class="dimension-card">
+                                <h5>Tone & Style</h5>
+                                <div class="dimension-score">${t2.tone_style.score}/5</div>
+                                <div class="dimension-reasoning">${t2.tone_style.reasoning}</div>
+                            </div>
+                            <div class="dimension-card">
+                                <h5>Conciseness</h5>
+                                <div class="dimension-score">${t2.conciseness.score}/5</div>
+                                <div class="dimension-reasoning">${t2.conciseness.reasoning}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Tier 3 Status
+            if (result.status === 'needs_human_review') {
+                html += `
+                    <div class="tier-item">
+                        <h4>👤 Tier 3: Human Review <span class="tier-badge" style="background: #fff3cd; color: #856404;">Pending</span></h4>
+                        <div class="tier-details">
+                            <p>This evaluation has been queued for human review due to low confidence or policy concerns.</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += `
+                </div>
+                <div class="evaluation-id">Evaluation ID: ${result.evaluation_id}</div>
+            `;
+
+            container.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

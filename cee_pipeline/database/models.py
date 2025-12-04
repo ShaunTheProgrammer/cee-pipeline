@@ -36,7 +36,7 @@ class Evaluation(Base):
     model_name = Column(String, nullable=False)
     model_provider = Column(String, nullable=False)
     dataset_name = Column(String, nullable=True)
-    metadata = Column(JSON, default={})
+    extra_metadata = Column(JSON, default={})
 
     # Status
     status = Column(SQLEnum(EvaluationStatusEnum), default=EvaluationStatusEnum.PENDING)

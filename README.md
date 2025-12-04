@@ -36,8 +36,9 @@ make up                 # Start all services (API + PostgreSQL + Redis + Nginx)
 ```
 
 **Access:**
-- Dashboard: http://localhost/dashboard/dashboard.html
-- API Docs: http://localhost:8000/docs
+- 🔬 **Evaluation Interface** (main UI): http://localhost/dashboard/evaluate.html
+- 📊 Dashboard: http://localhost/dashboard/dashboard.html
+- 📚 API Docs: http://localhost:8000/docs
 
 **Services included:** API, PostgreSQL, Redis, Nginx
 
@@ -61,10 +62,10 @@ python run_pipeline.py  # Interactive mode
 - [Features](#features)
 - [Docker Setup](#docker-setup)
 - [Native Setup](#native-setup)
+- [Web Interface](#web-interface)
 - [Usage Examples](#usage-examples)
 - [Model Selection](#model-selection)
 - [Configuration](#configuration)
-- [Dashboard](#dashboard)
 - [API Reference](#api-reference)
 - [Architecture](#architecture)
 - [Troubleshooting](#troubleshooting)
@@ -89,10 +90,11 @@ python run_pipeline.py  # Interactive mode
 
 ### Interfaces
 
-- **Web Dashboard**: Real-time metrics and visualization
-- **REST API**: Integration-ready with OpenAPI docs
-- **Python Library**: Direct programmatic access
-- **Interactive CLI**: Hands-on evaluation
+- **🔬 Interactive Evaluator**: Beautiful web UI to test evaluations without code
+- **📊 Web Dashboard**: Real-time metrics and visualization
+- **🌐 REST API**: Integration-ready with OpenAPI docs
+- **🐍 Python Library**: Direct programmatic access
+- **⌨️ Interactive CLI**: Hands-on evaluation
 
 ## 🐳 Docker Setup
 
@@ -229,6 +231,61 @@ python examples/batch_evaluation.py
 # Run tests
 pytest cee_pipeline/tests/
 ```
+
+## 🎨 Web Interface
+
+### 🔬 Interactive Evaluator - Main Interface
+
+**The primary way to use CEE Pipeline without writing code!**
+
+**Docker:**
+```bash
+make up
+# Visit http://localhost/dashboard/evaluate.html
+```
+
+**Native:**
+```bash
+# Terminal 1: Start API
+python -m cee_pipeline.api.main
+
+# Terminal 2: Serve dashboard
+cd cee_pipeline/dashboard
+python -m http.server 8080
+
+# Visit http://localhost:8080/evaluate.html
+```
+
+Test evaluations through a beautiful web interface - no code needed!
+
+**Features:**
+- **Two-Panel Layout**: Input form on left, live results on right
+- **Quick Examples**: Pre-filled test cases (Simple Q&A, Toxic Content, etc.)
+- **Real-time Results**: See trust scores and detailed breakdowns instantly
+- **Visual Feedback**: Color-coded badges, dimension scores with reasoning
+- **Form Validation**: Clear error messages and guidance
+- **Responsive Design**: Works on desktop and mobile
+
+**How to Use:**
+1. Select model provider (OpenAI/Anthropic)
+2. Enter prompt and model output
+3. Click "Run Evaluation" or use quick examples
+4. View comprehensive results with tier breakdowns
+
+### 📊 Monitoring Dashboard
+
+**Track system performance and evaluation metrics in real-time.**
+
+Access at: `http://localhost/dashboard/dashboard.html`
+
+**Features:**
+- **Key Metrics**: Total evaluations, average trust score, pass rates, drift index
+- **Tier Breakdown**: Performance across all three tiers
+- **Trust Score Trends**: Historical charts with baseline comparison
+- **Dimension Analysis**: Bar charts for 5 quality dimensions
+- **Drift Alerts**: Recent alerts with severity levels
+- **Auto-refresh**: Updates every 30 seconds
+- **Time Range Selection**: Filter by 1h, 6h, 24h, or 7 days
 
 ## 📖 Usage Examples
 
@@ -378,37 +435,6 @@ DATABASE_URL=postgresql://user:pass@host:5432/db
 # Optional
 LOG_LEVEL=INFO
 ```
-
-## 📊 Dashboard
-
-### Accessing the Dashboard
-
-**Docker:**
-```bash
-make up
-# Visit http://localhost/dashboard/dashboard.html
-```
-
-**Native:**
-```bash
-# Terminal 1: Start API
-python -m cee_pipeline.api.main
-
-# Terminal 2: Serve dashboard
-cd cee_pipeline/dashboard
-python -m http.server 8080
-
-# Visit http://localhost:8080/dashboard.html
-```
-
-### Dashboard Features
-
-- **Real-time Metrics**: Total evaluations, average Trust Score
-- **Tier Breakdown**: Individual tier performance
-- **Trust Score Trends**: Historical performance with baseline
-- **Dimension Analysis**: 5 quality dimensions breakdown
-- **Drift Alerts**: Recent alerts with severity
-- **Auto-refresh**: Updates every 30 seconds
 
 ## 🔌 API Reference
 
